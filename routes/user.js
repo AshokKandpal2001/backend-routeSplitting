@@ -1,11 +1,9 @@
 import express from "express";
 import {
-  deleteUser,
   getAllUsers,
   getUserDetailsById,
+  login,
   register,
-  specialFunction,
-  updateUser,
 } from "../controllers/user.js";
 
 const router = express.Router();
@@ -14,9 +12,10 @@ router.get("/all", getAllUsers);
 
 router.post("/new", register);
 
-router.get("/userid/special", specialFunction);
+router.post("/login" , login)
 
-router.route("/userid/:id").get(getUserDetailsById).put(updateUser).delete(deleteUser);
+
+router.route("/userid/:id").get(getUserDetailsById);
 
 // router.get("/userid/:id", getUserDetailsById);
 
