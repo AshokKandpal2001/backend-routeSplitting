@@ -1,57 +1,42 @@
 import { User } from "../models/user.js";
-export const getAllUsers = async (req , res) => {
-    const users = await User.find();
-    res.json({
-        success: true,
-        users,
-    });
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+
+export const getAllUsers = async (req, res) => {
+
 };
+
+export const login = async (req, res, next) => {
+
+}
+
 
 export const register = async (req, res) => {
+    const { name, email, password } = req.body;    // Destructuring name , email , password
+    let user = await User.findOne({ email });
 
-    const { name , email , password } = req.body;
-    await User.create({
-        name,
-        email,
-        password,
+    if (user) return res.status(404).json({          // if user is already registered, return
+        success: false,
+        message: "User already registered",
     });
-    res.status(201).cookie("token" , "first-cookie").json({
-    success: true,
-    message: "User created successfully",
-  });
-}
+    
+    const hashedPassword = await bcrypt.hash(password, 10);    // hash password
+    user = await User.create({                                         // create new user in database
+        name, email, password: hashedPassword,
+    });
 
-export const specialFunction =  (req , res) => {
-    res.json({
-        success: true,
-        message: "Just Trying something new to learn",
-    });
+    const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+
+    res.status(201).
+        cookie("token", token, {
+            httpOnly: true,
+            maxAge: 15 * 60 * 1000
+        }).json({
+            success: true,
+            message: "User registered successfully"
+        })
 };
 
+export const getUserDetailsById = async (req, res) => {
 
-export const getUserDetailsById = async (req , res) => {
-    const { id } = req.params;
-    const user = await User.findById(id);;
-    res.json({
-        success: true,
-        user,
-    });
-}
-
-export const updateUser = async (req , res) => {
-    const { id } = req.params;
-    const user = await User.findById(id);;
-    res.json({
-        success: true,
-        message: "User Updated successfully",
-    });
-}
-
-export const deleteUser = async (req , res) => {
-    const { id } = req.params;
-    const user = await User.findById(id);;
-    res.json({
-        success: true,
-        message : "User deleted successfully",
-    });
-}
+};
